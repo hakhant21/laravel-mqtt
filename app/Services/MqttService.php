@@ -28,12 +28,12 @@ class MqttService
           }
      }
 
-     public function subscribe($topic, callbale $callback)
+     public function subscribe($topic, $callback)
      {
           if($this->isConnected()) {
                $this->mqtt->subscribe($topic, function($topic, $message) use ($callback) {
                     $callback($topic, $message);
-               });
+               }, MqttClient::QOS_AT_MOST_ONCE);
           }
      }
 
