@@ -1,10 +1,13 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Models\Sale;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', [
+        'sales' => Sale::all(),
+    ]);
 });
 
 Route::get('/dashboard', function () {
