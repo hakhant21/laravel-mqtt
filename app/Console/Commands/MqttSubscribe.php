@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Services\MqttService;
 use App\Events\MessageReceived;
 use Illuminate\Console\Command;
@@ -25,19 +26,22 @@ class MqttSubscribe extends Command
     /**
      * Execute the console command.
      */
+    private $mqttService;
+    public function __construct(MqttService $mqttService)
+    {
+        parent::__construct();
+        $this->mqttService = $mqttService;
+    }
     public function handle()
     {
-        $mqtt = new MqttService();
+        try {
+            $this->mqttService->subscribe('detpos/#', function($topic, $message) {
+                broadcast(new MessageReceived($topic, $message));
+            });
 
-        $mqtt->subscribe('detpos/#', function ($topic, $message) {
-            broadcast(new MessageReceived($topic, $message));
-        });
-
-        $this->info('Listening for messages...');
-
-        while (true) {
-            $mqtt->loop();
+            $this->info("MQTT subscribe successful");
+        } catch(Exception $e) {
+            $this->info("MQTT subscribe failed: {$e->getMessage()}");
         }
-
     }
 }
