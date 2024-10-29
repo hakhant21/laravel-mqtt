@@ -3,12 +3,10 @@
 use App\Models\Sale;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
 
-Route::get('/', function () {
-    return view('welcome', [
-        'sales' => Sale::all(),
-    ]);
-});
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::post('/publish', [WelcomeController::class, 'send'])->name('publish');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

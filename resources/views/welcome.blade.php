@@ -18,6 +18,24 @@
         @endif
     </head>
     <body class="">
+        <div class="mb-5 px-4">
+            <div class="container mx-auto mt-3">
+                <form action="{{ route('publish') }}" method="POST">
+                    @csrf
+                    <div class="my-2">
+                        <label for="topic">Topic</label>
+                        <input type="text" name='topic' placeholder="detpos/device/preset/1" class="border-2 border-black w-full py-2 rounded-lg">
+                    </div>
+                    <div class="my-2">
+                        <label for="message">Message</label>
+                        <input type="text" name='message' placeholder="01P0010000" class="border-2 border-black w-full py-2 rounded-lg">
+                    </div>
+                    <x-secondary-button type='submit' class="mt-2">
+                        {{ __('Send') }}
+                    </x-secondary-button>
+                </form>
+            </div>
+        </div>
         <div class="container mx-auto">
             <div class="mt-2 px-4">
                 <div class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4">

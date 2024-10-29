@@ -24,7 +24,7 @@ class MqttService
      public function publish($topic, $message)
      {
           if($this->isConnected()) {
-                $this->mqtt->publish($topic, $message, MqttClient::QOS_AT_MOST_ONCE);
+                $this->mqtt->publish($topic, $message);
           }
      }
 
