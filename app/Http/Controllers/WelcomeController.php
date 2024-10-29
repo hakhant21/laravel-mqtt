@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sale;
-use App\Events\MessageReceived;
+use App\Concerns\HasMessage;
+use GuzzleHttp\Psr7\Message;
 use Illuminate\Http\Request;
 use App\Services\MqttService;
-use GuzzleHttp\Psr7\Message;
+use App\Events\MessageReceived;
 
 class WelcomeController extends Controller
 {
+    use HasMessage;
 
     public MqttService $mqtt;
     public function __construct(MqttService $mqtt)
@@ -27,7 +29,7 @@ class WelcomeController extends Controller
     {
         $this->mqtt->publish($request->topic, $request->message);
 
-        broadcast(new MessageReceived($request->topic, $request->message));
+        $this->handleMessage($request->topic, $request->message);
 
         return redirect()->route('welcome');
     }

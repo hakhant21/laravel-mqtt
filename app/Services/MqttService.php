@@ -5,6 +5,7 @@ namespace App\Services;
 use Exception;
 use PhpMqtt\Client\MqttClient;
 use App\Events\MessageReceived;
+use Laravel\Reverb\Protocols\Pusher\EventDispatcher;
 use PhpMqtt\Client\ConnectionSettings;
 
 class MqttService
@@ -28,21 +29,24 @@ class MqttService
 
             echo 'Connected to ' . config('mqtt.host') . ':' . config('mqtt.port') . ' as ' . config('mqtt.client_id') . "\n";
          } catch (Exception $e) {
-            echo "Connect failed: " . $e->getMessage();
-            return false;
+            echo "Connect failed: " . $e->getMessage() . "\n";
          }
      }
 
      public function publish($topic, $message)
      {
-         $this->connect();
+        $this->connect();
 
          try {
             $this->mqtt->publish($topic, $message, 0, false);
 
+            echo "Message published to: " . $topic . " with " . $message . "\n";
+
             $this->disconnect();
+
          } catch (Exception $e) {
-            echo "Publish failed: " . $e->getMessage();
+            echo "Publish failed: " . $e->getMessage() . "\n";
+
             if ($this->connect()) {
                 $this->publish($topic, $message);
             }
@@ -54,29 +58,34 @@ class MqttService
         $this->connect();
 
         try {
-            $this->mqtt->subscribe($topic, function ($topic, $message) use ($callback) {
+            $this->mqtt->subscribe($topic, function($topic, $message) use($callback) {
+                broadcast(new MessageReceived($topic, $message));
+
                 call_user_func($callback, $topic, $message);
-                echo "Message received: " . $message . "\n";
-            });
+
+            }, 0);
 
             $this->loop();
 
             $this->disconnect();
         } catch (Exception $e) {
-            echo "Subscribe failed: " . $e->getMessage();
+            echo "Subscribe failed: " . $e->getMessage() . "\n";
 
-            $this->connect();
-            $this->subscribe($topic, $callback);
+            if($this->connect()) {
+                $this->subscribe($topic, $callback);
+            }
         }
-     }
-
-     public function disconnect()
-     {
-          $this->mqtt->disconnect();
      }
 
      public function loop()
      {
-          $this->mqtt->loop(true);
+         while($this->mqtt->isConnected()) {
+             $this->mqtt->loop(true);
+         }
+     }
+
+     public function disconnect()
+     {
+         $this->mqtt->disconnect();
      }
 }

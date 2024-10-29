@@ -36,12 +36,10 @@ class MqttSubscribe extends Command
     {
         try {
             $this->mqttService->subscribe('detpos/#', function($topic, $message) {
-                broadcast(new MessageReceived($topic, $message));
+                $this->info("Received message from {$topic} with {$message}");
             });
-
-            $this->info("MQTT subscribe successful");
         } catch(Exception $e) {
-            $this->info("MQTT subscribe failed: {$e->getMessage()}");
+            $this->info("Failed to subscribe : {$e->getMessage()}");
         }
     }
 }

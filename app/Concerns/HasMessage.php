@@ -7,8 +7,11 @@ use Illuminate\Support\Str;
 
 trait HasMessage
 {
-    public function handleMessage(array $topic, array $message)
+    public function handleMessage($eventTopic, $eventMessage)
     {
+        $topic = explode('/', $eventTopic);
+        $message = preg_split('/[A-Z]/', $eventMessage);
+
         switch($topic[2]) {
             case 'preset':
                 $this->handlePresetMessage($topic, $message);
